@@ -7,7 +7,7 @@
 static bool textureLoaded = false;
 
 
-Bullet::Bullet(sf::Texture *texture) 
+Bullet::Bullet(sf::Texture* texture)
 {
 	bulletSprite.setTexture(*texture);
 	bulletSprite.setOrigin(bulletSprite.getGlobalBounds().width / 2, bulletSprite.getGlobalBounds().height / 2);//set origin to centre
@@ -22,10 +22,10 @@ sf::Texture& Bullet::GetBulletTexture()
 
 int& Bullet::GetSpeed()
 {
-    return bulletSpeed;
+	return bulletSpeed;
 }
 
 sf::Sprite& Bullet::GetBulletSprite()
 {
-    return bulletSprite;
+	return bulletSprite;
 }

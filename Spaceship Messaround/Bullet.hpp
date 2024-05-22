@@ -13,7 +13,7 @@ private:
 
 public:
 
-	Bullet(sf::Texture *texture);
+	Bullet(sf::Texture* texture);
 
 	void SetupBulletSprite();
 

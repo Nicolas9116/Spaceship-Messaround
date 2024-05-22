@@ -10,16 +10,22 @@
 #include "Bullet.hpp"
 
 int main()
-{
-    Player player;
-
-
-    sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
+{   sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
     window.setFramerateLimit(60);
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
 
     std::vector<Bullet> bullets;
+
+//Load Textures
+
+    sf::Texture playerTex;
+    sf::Texture bulletTex;
+
+    playerTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/player_ship.png");
+    bulletTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/blue_lazer.png");
+
+  Player player(&playerTex);
 
     while (window.isOpen())
     {
@@ -52,12 +58,12 @@ int main()
                 std::cout << "S key pressed" << std::endl;
                 player.GetSprite().move(0, 10);
             }
-            //MOVEMENT OVER===cpntinue polling other events
+            //MOVEMENT OVER===continue polling other events
 
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
             {
                 std::cout << "Spacebar pressed" << std::endl;
-                Bullet b;
+                Bullet b(&bulletTex);
                 b.GetBulletSprite().setPosition(player.GetSprite().getPosition());
                 bullets.push_back(b);
             }
@@ -66,11 +72,6 @@ int main()
 
         for (auto& bullet : bullets)
         {      
-            std::cout << "position of bullet" << 
-                bullet.GetBulletSprite().getPosition().x <<
-                " , " <<
-                bullet.GetBulletSprite().getPosition().y << std::endl;
-
             bullet.GetBulletSprite().move(bullet.GetSpeed(), 0);
         }
 
@@ -87,9 +88,12 @@ int main()
             window.draw(bullet.GetBulletSprite());
         }
         std::cout << "number of bullets being drawn" << bullets.size() << std::endl;
+
+
         //=================WRITE THE DRAW BUFFER AS A FRAME===============
         window.display();
     }
-
+    
+    
     return 0;
 }

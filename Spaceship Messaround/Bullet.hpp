@@ -9,16 +9,17 @@ private:
 	sf::Texture bulletTex;
 	sf::Sprite bulletSprite;
 
-	int bulletSpeed = 1;
+	int bulletSpeed = 10;
 
 public:
 
-	Bullet();
+	Bullet(sf::Texture *texture);
 
 	void SetupBulletSprite();
 
-	int GetSpeed();
+	int& GetSpeed();
 
 	sf::Sprite& GetBulletSprite();
+	sf::Texture& GetBulletTexture();
 };
 

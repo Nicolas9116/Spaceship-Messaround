@@ -24,7 +24,7 @@
     <ProjectGuid>{4676e0c5-dbab-4f1d-b5ed-b204f3a9e93c}</ProjectGuid>
     <RootNamespace>RPGGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>RPG_game</ProjectName>
+    <ProjectName>Spaceship Messaround</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

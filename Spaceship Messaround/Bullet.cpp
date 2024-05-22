@@ -2,7 +2,7 @@
 
 Bullet::Bullet()
 {
-    if (!bulletTex.loadFromFile("C:/Users/vampi/source/repos/RPG_Game/RPG_Game/Sprites/blue_lazer.png"))
+    if (!bulletTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/blue_lazer.png"))
     {
         std::cout << "FAILED TO LOAD BULLET TEXTURE" << std::endl;
     }

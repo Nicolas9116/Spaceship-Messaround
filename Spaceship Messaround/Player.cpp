@@ -4,7 +4,7 @@
 
 void Player::SetUpPlayerSprite()
 {
-	if (!playerTex.loadFromFile("C:/Users/vampi/source/repos/RPG_Game/RPG_Game/Sprites/player_ship.png"))
+	if (!playerTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/player_ship.png"))
 	{
 		std::cout << "FAILED TO LOAD PLAYER_SPRITE" << std::endl;
 

@@ -52,29 +52,26 @@ int main()
                 std::cout << "S key pressed" << std::endl;
                 player.GetSprite().move(0, 10);
             }
-            //MOVEMENT OVER
+            //MOVEMENT OVER===cpntinue polling other events
 
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
             {
                 std::cout << "Spacebar pressed" << std::endl;
-                Bullet b = Bullet();
-                Bullet& c = b;
+                Bullet b;
                 b.GetBulletSprite().setPosition(player.GetSprite().getPosition());
-                bullets.push_back(c);
+                bullets.push_back(b);
             }
         }
         //=================DO THINGS====================
 
-        for (int i = 0; i < bullets.size(); i++)
-        {
-            Bullet& b = bullets[i];
-
+        for (auto& bullet : bullets)
+        {      
             std::cout << "position of bullet" << 
-                b.GetBulletSprite().getPosition().x <<
+                bullet.GetBulletSprite().getPosition().x <<
                 " , " <<
-                b.GetBulletSprite().getPosition().y << std::endl;
+                bullet.GetBulletSprite().getPosition().y << std::endl;
 
-            b.GetBulletSprite().move(b.GetSpeed(), 0);
+            bullet.GetBulletSprite().move(bullet.GetSpeed(), 0);
         }
 
 
@@ -85,12 +82,11 @@ int main()
         //=================DRAW THINGS==================
         window.draw(player.GetSprite());
         
-        for (int i = 0; i < bullets.size(); i++)
+        for (auto& bullet : bullets)
         {
-            Bullet& b = bullets[i];
-
-            window.draw(b.GetBulletSprite());
+            window.draw(bullet.GetBulletSprite());
         }
+        std::cout << "number of bullets being drawn" << bullets.size() << std::endl;
         //=================WRITE THE DRAW BUFFER AS A FRAME===============
         window.display();
     }

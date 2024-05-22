@@ -9,7 +9,7 @@ private:
 	sf::Texture bulletTex;
 	sf::Sprite bulletSprite;
 
-	int bulletSpeed = 15;
+	int bulletSpeed = 1;
 
 public:
 

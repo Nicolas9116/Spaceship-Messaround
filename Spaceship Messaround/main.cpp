@@ -1,22 +1,47 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdlib> 
+#include <ctime>   
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include "Player.hpp"
 #include "Bullet.hpp"
+#include "Enemy.hpp"
+
+std::pair<int, int> GenerateRandomEnemySpawn()
+{
+	// Define the x range (e.g., [100, 200])
+	int x_min = 900;
+	int x_max = 1280;
+
+	// Define the y range (e.g., [0, 1080])
+	int y_min = 0;
+	int y_max = 1080;
+
+	// Generate a random x position within the range [x_min, x_max]
+	int random_x = x_min + std::rand() % (x_max - x_min + 1);
+
+	// Generate a random y position within the range [y_min, y_max]
+	int random_y = y_min + std::rand() % (y_max - y_min + 1);
+
+	return std::make_pair(random_x, random_y);
+}
 
 int main()
 {
+	std::srand(static_cast<unsigned int>(std::time(0)));
+
 	sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
+
 	window.setFramerateLimit(60);
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
 
 	std::vector<Bullet> bullets;
+	std::vector<Enemy> enemies;
 
 	//========Load Textures=============
 	sf::Texture playerTex;
@@ -24,14 +49,21 @@ int main()
 
 	sf::Texture bulletTex;
 	bulletTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/blue_lazer.png");
+
+	sf::Texture enemyTex;
+	enemyTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/enemy_ship.png");
 	//========End Load Textures=========
 
 
-	Player player(&playerTex);
+	Player player(playerTex);
 
+	sf::Clock clock;
 	//========Main Game Loop============
 	while (window.isOpen())
 	{
+
+		player.ResetAcceleration();
+
 		//========POLL EVENTS===============
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -40,49 +72,82 @@ int main()
 			{
 				window.close();
 			}
-			//MOVEMENT
-			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A))
-			{
-				std::cout << "A key pressed" << std::endl;
-				player.GetSprite().move(-10, 0);
-			}
-			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D))
-			{
-				std::cout << "D key pressed" << std::endl;
-				player.GetSprite().move(10, 0);
-			}
-			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W))
-			{
-				std::cout << "W key pressed" << std::endl;
-				player.GetSprite().move(0, -10);
-			}
-			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S))
-			{
-				std::cout << "S key pressed" << std::endl;
-				player.GetSprite().move(0, 10);
-			}
-			//MOVEMENT OVER===continue polling other events
 
 			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
 			{
 				std::cout << "Spacebar pressed" << std::endl;
-				Bullet b(&bulletTex);
+				Bullet b(bulletTex);
 				b.GetBulletSprite().setPosition(player.GetSprite().getPosition());
 				bullets.push_back(b);
 			}
 		}
-		//=================DO THINGS====================
+			//MOVEMENT
 
+		int movementControl = 0;
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			{
+				std::cout << "A key pressed" << std::endl;
+				player.UpdateAcceleration(sf::Vector2f(-1, 0));
+				movementControl++;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				std::cout << "D key pressed" << std::endl;
+				player.UpdateAcceleration(sf::Vector2f(1, 0));
+				movementControl++;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				std::cout << "W key pressed" << std::endl;
+				player.UpdateAcceleration(sf::Vector2f(0, -1));
+				movementControl++;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				std::cout << "S key pressed" << std::endl;
+				player.UpdateAcceleration(sf::Vector2f(0, 1));
+				movementControl++;
+			}
+			if (movementControl == 0)
+			{
+				player.ApplyAirResistance();
+			}
+			//MOVEMENT OVER===continue polling other events
+
+
+		
+		//=================DO THINGS====================
+		
+		float elapsedTime = clock.getElapsedTime().asSeconds();
+
+		player.UpdateVelocity(player.GetAcceleration());
+		player.GetSprite().move(player.GetVelocity());
+
+		if (elapsedTime > 3)
+		{
+			std::cout << "enemy spawn called" << std::endl;
+			Enemy enemyShip(enemyTex);
+			auto position = GenerateRandomEnemySpawn();
+			enemyShip.GetEnemySprite().setPosition(position.first, position.second);
+			enemies.push_back(enemyShip);
+			clock.restart();
+			std::cout << "There are : " << enemies.size() << " enemies" << std::endl;
+		}
+		
 		for (auto& bullet : bullets)
 		{
 			bullet.GetBulletSprite().move(bullet.GetSpeed(), 0);
 		}
 
 
-
+		//=================CLEAR PREVIOUS FRAME=========
 
 		window.clear();//clear the previous frame before rendering a new frame
 
+		//=================CLEARED PREVIOUS FRAME=======
+		
+		
 		//=================DRAW THINGS==================
 		window.draw(player.GetSprite());
 
@@ -90,13 +155,17 @@ int main()
 		{
 			window.draw(bullet.GetBulletSprite());
 		}
-		std::cout << "number of bullets being drawn" << bullets.size() << std::endl;
+
+		for (auto& enemies : enemies)
+		{
+			window.draw(enemies.GetEnemySprite());
+		}
+		//std::cout << "number of bullets being drawn" << bullets.size() << std::endl;
+		//=================FINISH DRAW==================
 
 
 		//=================WRITE THE DRAW BUFFER AS A FRAME===============
 		window.display();
 	}
-
-
 	return 0;
 }

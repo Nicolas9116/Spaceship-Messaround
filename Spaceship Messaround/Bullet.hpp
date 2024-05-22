@@ -6,20 +6,16 @@ class Bullet
 {
 private:
 
-	sf::Texture bulletTex;
 	sf::Sprite bulletSprite;
 
 	int bulletSpeed = 10;
 
 public:
 
-	Bullet(sf::Texture* texture);
-
-	void SetupBulletSprite();
+	Bullet(sf::Texture &texture);
 
 	int& GetSpeed();
 
 	sf::Sprite& GetBulletSprite();
-	sf::Texture& GetBulletTexture();
 };
 

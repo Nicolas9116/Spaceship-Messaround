@@ -12,6 +12,16 @@ Player::Player(sf::Texture &texture)
 	currentHealth = maxhealth;//set health to max
 }
 
+int& Player::GetScore()
+{
+	return score;
+}
+
+void Player::UpdateScore(int score)
+{
+	this->score += score;
+}
+
 
 sf::Sprite& Player::GetSprite()
 {

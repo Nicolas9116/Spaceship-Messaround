@@ -17,16 +17,22 @@ private:
 	sf::Vector2f acceleration;
 	sf::Vector2f velocity;
 	
+	int score = 0;
 
 public:
 
 
 	Player(sf::Texture &texture);
 
+	int& GetScore();
+	void UpdateScore(int score);
+
+
 	sf::Sprite& GetSprite();
 	
 	sf::Vector2f& GetAcceleration();
 	float& GetAccelerationForce();
+
 	sf::Vector2f& GetVelocity();
 	
 
@@ -39,4 +45,5 @@ public:
 
 	void ApplyAirResistance();
 };
+
 

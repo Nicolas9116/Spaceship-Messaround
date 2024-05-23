@@ -12,6 +12,7 @@
 #include "Player.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
+#include "GUI.hpp"
 
 std::pair<int, int> GenerateRandomEnemySpawn();
 
@@ -19,6 +20,8 @@ void SpawnEnemy(sf::Texture& texture);
 
 std::vector<Bullet> bullets;
 std::vector<Enemy> enemies;
+
+
 
 int main()
 {
@@ -39,7 +42,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	Player player(playerTex);
-
+	GUI gui;
 	sf::Clock clock;
 	//========Main Game Loop============
 	while (window.isOpen())
@@ -164,6 +167,7 @@ int main()
 					enemy = enemies.erase(enemy);
 					bullet = bullets.erase(bullet);
 					bulletErased = true;
+					player.UpdateScore(1);
 					break; // Exit the inner loop
 				}
 				else
@@ -202,6 +206,13 @@ int main()
 				++enemy;
 			}
 		}
+
+		//=================UPDATE SCORE=================
+		
+		gui.UpdateScore(player.GetScore());
+
+		std::cout << "Score is : " << player.GetScore() << std::endl;
+
 		//=================CLEAR PREVIOUS FRAME=========
 
 		window.clear();//clear the previous frame before rendering a new frame
@@ -211,6 +222,8 @@ int main()
 		
 		//=================DRAW THINGS==================
 		window.draw(player.GetSprite());
+
+		window.draw(gui.GetScoreText());
 
 		for (auto& bullet : bullets)
 		{

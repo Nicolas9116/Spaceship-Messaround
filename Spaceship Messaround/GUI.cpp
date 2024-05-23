@@ -1,5 +1,7 @@
 #include "GUI.hpp"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 GUI::GUI()
 {
@@ -30,7 +32,16 @@ GUI::GUI()
     gameOverText.setString("Game Over\nPress R to Restart\nPress Esc to Exit");
     gameOverText.setCharacterSize(50);
     gameOverText.setPosition(300, 400);
-};
+
+    frameRateText.setFont(scoreTextFont);
+    frameRateText.setCharacterSize(32);
+    frameRateText.setPosition(1050, 10);
+    frameRateText.setString("FPS ");
+}
+sf::Text& GUI::GetFrameRateText()
+{
+    return frameRateText;
+}
 
 sf::Text& GUI::GetGameOverText()
 {
@@ -40,6 +51,13 @@ sf::Text& GUI::GetGameOverText()
 sf::Text& GUI::GetScoreText()
 {
 	return scoreText;
+}
+
+void GUI::UpdateFrameRateText(float framerate)
+{
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(2) << framerate;
+    frameRateText.setString("FPS " + stream.str());
 }
 
 void GUI::UpdateScore(int score)

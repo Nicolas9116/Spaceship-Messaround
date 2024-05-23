@@ -49,11 +49,17 @@ int main()
 	Player player(playerTex);
 	GUI gui;
 	sf::Clock clock;
+	sf::Clock frameRateClock;
 	GameState gameState = GameState::Playing;
 
 	//========Main Game Loop============
 	while (window.isOpen())
 	{
+		float deltaTime = frameRateClock.restart().asSeconds();
+		float fps = 1.0f / deltaTime;
+
+		gui.UpdateFrameRateText(fps);
+
 		//========POLL EVENTS===============
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -237,6 +243,7 @@ int main()
 			window.draw(gui.GetScoreText());
 			window.draw(gui.GetHealthBarBacking());
 			window.draw(gui.GetHealthBar());
+			window.draw(gui.GetFrameRateText());
 
 			for (auto& bullet : bullets)
 			{

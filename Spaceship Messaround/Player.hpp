@@ -12,8 +12,8 @@ private:
 	int currentHealth = 0;
 	int maxhealth = 5;
 
-	float maxVelocity = 5;
-
+	float maxVelocity = 10;
+	float accelerationForce = 0.5f;
 	sf::Vector2f acceleration;
 	sf::Vector2f velocity;
 	
@@ -26,8 +26,10 @@ public:
 	sf::Sprite& GetSprite();
 	
 	sf::Vector2f& GetAcceleration();
+	float& GetAccelerationForce();
 	sf::Vector2f& GetVelocity();
 	
+
 	void UpdateAcceleration(sf::Vector2f newAcceleration);
 	void ResetAcceleration();
 	void ResetVerticalVelocity();

@@ -8,7 +8,7 @@ private:
 
 	sf::Sprite bulletSprite;
 
-	int bulletSpeed = 10;
+	int bulletSpeed = 15;
 
 public:
 

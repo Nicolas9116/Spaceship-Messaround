@@ -64,32 +64,32 @@ int main()
 				bullets.push_back(b);
 			}
 		}
-			//MOVEMENT
+			//MOVEMENT=================================
 
 		int airResistanceDetection = 0;
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 			{
 				std::cout << "A key pressed" << std::endl;
-				player.UpdateAcceleration(sf::Vector2f(-1, 0));
+				player.UpdateAcceleration(sf::Vector2f(-player.GetAccelerationForce(), 0));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
 				std::cout << "D key pressed" << std::endl;
-				player.UpdateAcceleration(sf::Vector2f(1, 0));
+				player.UpdateAcceleration(sf::Vector2f(player.GetAccelerationForce(), 0));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
 				std::cout << "W key pressed" << std::endl;
-				player.UpdateAcceleration(sf::Vector2f(0, -1));
+				player.UpdateAcceleration(sf::Vector2f(0, -player.GetAccelerationForce()));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
 				std::cout << "S key pressed" << std::endl;
-				player.UpdateAcceleration(sf::Vector2f(0, 1));
+				player.UpdateAcceleration(sf::Vector2f(0, player.GetAccelerationForce()));
 				airResistanceDetection++;
 			}
 
@@ -120,6 +120,25 @@ int main()
 		player.UpdateVelocity(player.GetAcceleration());
 		player.GetSprite().move(player.GetVelocity());
 
+		//Bounding Box for Player===================
+		if (player.GetSprite().getPosition().x > window.getSize().x - player.GetSprite().getGlobalBounds().width / 2)//right check
+		{
+			player.GetSprite().setPosition(window.getSize().x - (player.GetSprite().getGlobalBounds().width /2), player.GetSprite().getPosition().y);
+		}
+		if (player.GetSprite().getPosition().x < 0 + player.GetSprite().getGlobalBounds().width /2)//left check
+		{
+			player.GetSprite().setPosition(0 + player.GetSprite().getGlobalBounds().width /2, player.GetSprite().getPosition().y);
+		}
+		if (player.GetSprite().getPosition().y < 0 + player.GetSprite().getGlobalBounds().height / 2)//top check
+		{
+			player.GetSprite().setPosition(player.GetSprite().getPosition().x, 0 + player.GetSprite().getGlobalBounds().height / 2);
+		}
+		if (player.GetSprite().getPosition().y > 1080 - player.GetSprite().getGlobalBounds().height / 2)//bottom check
+		{
+			player.GetSprite().setPosition(player.GetSprite().getPosition().x, 1080 - player.GetSprite().getGlobalBounds().height / 2);
+		}
+		//Bounding Box END==========================
+
 		if (elapsedTime > 3)//every three seconds add another enemy to the scene
 		{
 			std::cout << "enemy spawn called" << std::endl;
@@ -127,12 +146,62 @@ int main()
 			clock.restart();
 		}
 		
-		for (auto& bullet : bullets)//Move bullet
+		//Iterate through the bullet
+		//update their position by their speed.
+		//For each bullet, check through the enemies for collisions
+		//If colliding with an enemy, destroy both and break to the outer loop
+		//check for out of bounds, then iterate.
+		for (auto bullet = bullets.begin(); bullet != bullets.end(); )
 		{
-			bullet.GetBulletSprite().move(bullet.GetSpeed(), 0);
+			bullet->GetBulletSprite().move(bullet->GetSpeed(), 0);
+
+			bool bulletErased = false;
+
+			for (auto enemy = enemies.begin(); enemy != enemies.end();)
+			{
+				if (bullet->GetBulletSprite().getGlobalBounds().intersects(enemy->GetEnemySprite().getGlobalBounds()))
+				{
+					enemy = enemies.erase(enemy);
+					bullet = bullets.erase(bullet);
+					bulletErased = true;
+					break; // Exit the inner loop
+				}
+				else
+				{
+					++enemy;
+				}
+			}
+
+			if (bulletErased) continue; // If bullet was erased, skip to the next iteration of the outer loop
+
+			if (bullet->GetBulletSprite().getPosition().x > 1290)
+			{
+				bullet = bullets.erase(bullet);
+			}
+			else
+			{
+				++bullet; // Move to the next bullet
+			}
 		}
+		//Enemies are pretty much just bullets moving in the other direction. #poetry
+		for (auto enemy = enemies.begin(); enemy != enemies.end();)
+		{
+			enemy->GetEnemySprite().move(enemy->GetSpeed() * -1, 0);
 
+			if (enemy->GetEnemySprite().getGlobalBounds().intersects(player.GetSprite().getGlobalBounds()))
+			{
+				enemy = enemies.erase(enemy);
+			}			
 
+			else if (enemy->GetEnemySprite().getPosition().x < -10)
+			{
+				enemy = enemies.erase(enemy);
+			}
+			else
+			{
+				++enemy;
+			}
+		}
 		//=================CLEAR PREVIOUS FRAME=========
 
 		window.clear();//clear the previous frame before rendering a new frame
@@ -152,7 +221,6 @@ int main()
 		{
 			window.draw(enemies.GetEnemySprite());
 		}
-		//std::cout << "number of bullets being drawn" << bullets.size() << std::endl;
 		//=================FINISH DRAW==================
 
 
@@ -166,16 +234,12 @@ int main()
 
 std::pair<int, int> GenerateRandomEnemySpawn()
 {
-	// Define the x range (e.g., [100, 200])
-	int x_min = 900;
-	int x_max = 1280;
-
-	// Define the y range (e.g., [0, 1080])
+	// Define the y range
 	int y_min = 0;
 	int y_max = 1080;
 
-	// Generate a random x position within the range [x_min, x_max]
-	int random_x = x_min + std::rand() % (x_max - x_min + 1);
+	// Worked out later I didn't want the x to be random---switched this out as a quick fix. 
+	int random_x = 1300;
 
 	// Generate a random y position within the range [y_min, y_max]
 	int random_y = y_min + std::rand() % (y_max - y_min + 1);
@@ -192,3 +256,4 @@ void SpawnEnemy(sf::Texture& texture)
 	std::cout << "enemies in vector" << enemies.size() << std::endl;
 
 }
+

@@ -15,6 +15,11 @@ int& Enemy::GetEnemyHealth()
     return health;
 }
 
+int& Enemy::GetSpeed()
+{
+    return enemySpeed;
+}
+
 sf::Sprite& Enemy::GetEnemySprite()
 {
     return enemySprite;

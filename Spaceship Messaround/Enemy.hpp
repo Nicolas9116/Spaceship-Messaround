@@ -15,5 +15,6 @@ public:
 	int& GetEnemyHealth();
 
 	sf::Sprite& GetEnemySprite();
+	int& GetSpeed();
 };
 

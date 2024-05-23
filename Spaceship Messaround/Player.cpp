@@ -23,6 +23,11 @@ sf::Vector2f& Player::GetAcceleration()
 	return acceleration;
 }
 
+float& Player::GetAccelerationForce()
+{
+	return accelerationForce;
+}
+
 sf::Vector2f& Player::GetVelocity()
 {
 	return velocity;
@@ -58,5 +63,5 @@ void Player::UpdateVelocity(sf::Vector2f acceleration)
 
 void Player::ApplyAirResistance()
 {
-	velocity *= 0.5f;
+	velocity *= 0.98f;
 }

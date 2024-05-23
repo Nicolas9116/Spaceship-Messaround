@@ -14,13 +14,18 @@
 #include "Enemy.hpp"
 #include "GUI.hpp"
 
+enum class GameState
+{
+	Playing,
+	GameOver
+};
+
 std::pair<int, int> GenerateRandomEnemySpawn();
 
 void SpawnEnemy(sf::Texture& texture);
 
 std::vector<Bullet> bullets;
 std::vector<Enemy> enemies;
-
 
 
 int main()
@@ -44,12 +49,11 @@ int main()
 	Player player(playerTex);
 	GUI gui;
 	sf::Clock clock;
+	GameState gameState = GameState::Playing;
+
 	//========Main Game Loop============
 	while (window.isOpen())
 	{
-
-		player.ResetAcceleration();
-
 		//========POLL EVENTS===============
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -59,7 +63,7 @@ int main()
 				window.close();
 			}
 
-			if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
+			if ((gameState == GameState::Playing && event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
 			{
 				std::cout << "Spacebar pressed" << std::endl;
 				Bullet b(bulletTex);
@@ -69,29 +73,32 @@ int main()
 		}
 			//MOVEMENT=================================
 
-		int airResistanceDetection = 0;
+		if (gameState == GameState::Playing)
+		{
+			int airResistanceDetection = 0;
+			player.ResetAcceleration();
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 			{
-				std::cout << "A key pressed" << std::endl;
+				//std::cout << "A key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(-player.GetAccelerationForce(), 0));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
-				std::cout << "D key pressed" << std::endl;
+				//std::cout << "D key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(player.GetAccelerationForce(), 0));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
-				std::cout << "W key pressed" << std::endl;
+				//std::cout << "W key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(0, -player.GetAccelerationForce()));
 				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
-				std::cout << "S key pressed" << std::endl;
+				//std::cout << "S key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(0, player.GetAccelerationForce()));
 				airResistanceDetection++;
 			}
@@ -114,61 +121,92 @@ int main()
 			//MOVEMENT OVER=============================
 
 
-			std::cout << "Player Velocity: (" << player.GetVelocity().x << ", " << player.GetVelocity().y << ")" << std::endl;
-
 		//=================DO THINGS====================
-		
-		float elapsedTime = clock.getElapsedTime().asSeconds();
 
-		player.UpdateVelocity(player.GetAcceleration());
-		player.GetSprite().move(player.GetVelocity());
+			float elapsedTime = clock.getElapsedTime().asSeconds();
 
-		//Bounding Box for Player===================
-		if (player.GetSprite().getPosition().x > window.getSize().x - player.GetSprite().getGlobalBounds().width / 2)//right check
-		{
-			player.GetSprite().setPosition(window.getSize().x - (player.GetSprite().getGlobalBounds().width /2), player.GetSprite().getPosition().y);
-		}
-		if (player.GetSprite().getPosition().x < 0 + player.GetSprite().getGlobalBounds().width /2)//left check
-		{
-			player.GetSprite().setPosition(0 + player.GetSprite().getGlobalBounds().width /2, player.GetSprite().getPosition().y);
-		}
-		if (player.GetSprite().getPosition().y < 0 + player.GetSprite().getGlobalBounds().height / 2)//top check
-		{
-			player.GetSprite().setPosition(player.GetSprite().getPosition().x, 0 + player.GetSprite().getGlobalBounds().height / 2);
-		}
-		if (player.GetSprite().getPosition().y > 1080 - player.GetSprite().getGlobalBounds().height / 2)//bottom check
-		{
-			player.GetSprite().setPosition(player.GetSprite().getPosition().x, 1080 - player.GetSprite().getGlobalBounds().height / 2);
-		}
-		//Bounding Box END==========================
+			player.UpdateVelocity(player.GetAcceleration());
+			player.GetSprite().move(player.GetVelocity());
 
-		if (elapsedTime > 3)//every three seconds add another enemy to the scene
-		{
-			std::cout << "enemy spawn called" << std::endl;
-			SpawnEnemy(enemyTex);
-			clock.restart();
-		}
-		
-		//Iterate through the bullet
-		//update their position by their speed.
-		//For each bullet, check through the enemies for collisions
-		//If colliding with an enemy, destroy both and break to the outer loop
-		//check for out of bounds, then iterate.
-		for (auto bullet = bullets.begin(); bullet != bullets.end(); )
-		{
-			bullet->GetBulletSprite().move(bullet->GetSpeed(), 0);
+			//Bounding Box for Player===================
+			if (player.GetSprite().getPosition().x > window.getSize().x - player.GetSprite().getGlobalBounds().width / 2)//right check
+			{
+				player.GetSprite().setPosition(window.getSize().x - (player.GetSprite().getGlobalBounds().width / 2), player.GetSprite().getPosition().y);
+			}
+			if (player.GetSprite().getPosition().x < 0 + player.GetSprite().getGlobalBounds().width / 2)//left check
+			{
+				player.GetSprite().setPosition(0 + player.GetSprite().getGlobalBounds().width / 2, player.GetSprite().getPosition().y);
+			}
+			if (player.GetSprite().getPosition().y < 0 + player.GetSprite().getGlobalBounds().height / 2)//top check
+			{
+				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 0 + player.GetSprite().getGlobalBounds().height / 2);
+			}
+			if (player.GetSprite().getPosition().y > 1080 - player.GetSprite().getGlobalBounds().height / 2)//bottom check
+			{
+				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 1080 - player.GetSprite().getGlobalBounds().height / 2);
+			}
+			//Bounding Box END==========================
 
-			bool bulletErased = false;
+			if (elapsedTime > 3)//every three seconds add another enemy to the scene
+			{
+				std::cout << "enemy spawn called" << std::endl;
+				SpawnEnemy(enemyTex);
+				clock.restart();
+			}
 
+			//Iterate through the bullet
+			//update their position by their speed.
+			//For each bullet, check through the enemies for collisions
+			//If colliding with an enemy, destroy both and break to the outer loop
+			//check for out of bounds, then iterate.
+			for (auto bullet = bullets.begin(); bullet != bullets.end(); )
+			{
+				bullet->GetBulletSprite().move(bullet->GetSpeed(), 0);
+
+				bool bulletErased = false;
+
+				for (auto enemy = enemies.begin(); enemy != enemies.end();)
+				{
+					if (bullet->GetBulletSprite().getGlobalBounds().intersects(enemy->GetEnemySprite().getGlobalBounds()))
+					{
+						enemy = enemies.erase(enemy);
+						bullet = bullets.erase(bullet);
+						bulletErased = true;
+						player.UpdateScore(1);
+						break; // Exit the inner loop
+					}
+					else
+					{
+						++enemy;
+					}
+				}
+
+				if (bulletErased) continue; // If bullet was erased, skip to the next iteration of the outer loop
+
+				if (bullet->GetBulletSprite().getPosition().x > 1290)
+				{
+					bullet = bullets.erase(bullet);
+				}
+				else
+				{
+					++bullet; // Move to the next bullet
+				}
+			}
+			//Enemies are pretty much just bullets moving in the other direction. #poetry
 			for (auto enemy = enemies.begin(); enemy != enemies.end();)
 			{
-				if (bullet->GetBulletSprite().getGlobalBounds().intersects(enemy->GetEnemySprite().getGlobalBounds()))
+				enemy->GetEnemySprite().move(enemy->GetSpeed() * -1, 0);
+
+				if (enemy->GetEnemySprite().getGlobalBounds().intersects(player.GetSprite().getGlobalBounds()))
 				{
 					enemy = enemies.erase(enemy);
-					bullet = bullets.erase(bullet);
-					bulletErased = true;
-					player.UpdateScore(1);
-					break; // Exit the inner loop
+					player.TakeDamage(1);
+					std::cout << "Player Health " << player.GetHealth() << std::endl;
+				}
+
+				else if (enemy->GetEnemySprite().getPosition().x < -10)
+				{
+					enemy = enemies.erase(enemy);
 				}
 				else
 				{
@@ -176,75 +214,75 @@ int main()
 				}
 			}
 
-			if (bulletErased) continue; // If bullet was erased, skip to the next iteration of the outer loop
+			//=================UPDATE GUI=================
+			gui.UpdateScore(player.GetScore());
+			gui.UpdateHealthBar(player.GetHealth());
+			//=================CLEAR PREVIOUS FRAME=========
 
-			if (bullet->GetBulletSprite().getPosition().x > 1290)
+			window.clear();//clear the previous frame before rendering a new frame
+
+			//=================CLEARED PREVIOUS FRAME=======
+
+
+
+
+
+			//=================DRAW THINGS==================
+			window.draw(player.GetSprite());
+
+			window.draw(gui.GetScoreText());
+			window.draw(gui.GetHealthBarBacking());
+			window.draw(gui.GetHealthBar());
+
+			for (auto& bullet : bullets)
 			{
-				bullet = bullets.erase(bullet);
+				window.draw(bullet.GetBulletSprite());
 			}
-			else
+
+			for (auto& enemies : enemies)
 			{
-				++bullet; // Move to the next bullet
+				window.draw(enemies.GetEnemySprite());
+			}
+			//=================FINISH DRAW==================
+
+
+			//=================WRITE THE DRAW BUFFER AS A FRAME===============
+			window.display();
+
+			if (player.GetHealth() <= 0)
+			{
+				gameState = GameState::GameOver;
 			}
 		}
-		//Enemies are pretty much just bullets moving in the other direction. #poetry
-		for (auto enemy = enemies.begin(); enemy != enemies.end();)
+
+		else if (gameState == GameState::GameOver)
 		{
-			enemy->GetEnemySprite().move(enemy->GetSpeed() * -1, 0);
+			// Render game over screen
+			window.clear();
 
-			if (enemy->GetEnemySprite().getGlobalBounds().intersects(player.GetSprite().getGlobalBounds()))
-			{
-				enemy = enemies.erase(enemy);
-			}			
+			window.draw(gui.GetGameOverText());
 
-			else if (enemy->GetEnemySprite().getPosition().x < -10)
+			window.display();
+
+			// Check for restart or exit input
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 			{
-				enemy = enemies.erase(enemy);
+				gameState = GameState::Playing;
+				player.Reset();
+				bullets.clear();
+				enemies.clear();
+				clock.restart();
 			}
-			else
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			{
-				++enemy;
+				window.close();
 			}
 		}
 
-		//=================UPDATE SCORE=================
-		
-		gui.UpdateScore(player.GetScore());
-
-		std::cout << "Score is : " << player.GetScore() << std::endl;
-
-		//=================CLEAR PREVIOUS FRAME=========
-
-		window.clear();//clear the previous frame before rendering a new frame
-
-		//=================CLEARED PREVIOUS FRAME=======
-		
-		
-		//=================DRAW THINGS==================
-		window.draw(player.GetSprite());
-
-		window.draw(gui.GetScoreText());
-
-		for (auto& bullet : bullets)
-		{
-			window.draw(bullet.GetBulletSprite());
 		}
-
-		for (auto& enemies : enemies)
-		{
-			window.draw(enemies.GetEnemySprite());
-		}
-		//=================FINISH DRAW==================
-
-
-		//=================WRITE THE DRAW BUFFER AS A FRAME===============
-		window.display();
+		return 0;
 	}
-	return 0;
-
-
-}
-
+	
 std::pair<int, int> GenerateRandomEnemySpawn()
 {
 	// Define the y range

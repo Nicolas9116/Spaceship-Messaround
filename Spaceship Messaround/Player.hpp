@@ -27,6 +27,8 @@ public:
 	int& GetScore();
 	void UpdateScore(int score);
 
+	int& GetHealth();
+	void TakeDamage(int damage);
 
 	sf::Sprite& GetSprite();
 	
@@ -34,7 +36,6 @@ public:
 	float& GetAccelerationForce();
 
 	sf::Vector2f& GetVelocity();
-	
 
 	void UpdateAcceleration(sf::Vector2f newAcceleration);
 	void ResetAcceleration();
@@ -44,6 +45,8 @@ public:
 	void UpdateVelocity(sf::Vector2f acceleration);
 
 	void ApplyAirResistance();
+
+	void Reset();
 };
 
 

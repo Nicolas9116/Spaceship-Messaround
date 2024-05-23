@@ -22,6 +22,16 @@ void Player::UpdateScore(int score)
 	this->score += score;
 }
 
+int& Player::GetHealth()
+{
+	return currentHealth;
+}
+
+void Player::TakeDamage(int damage)
+{
+	currentHealth -= damage;
+}
+
 
 sf::Sprite& Player::GetSprite()
 {
@@ -74,4 +84,11 @@ void Player::UpdateVelocity(sf::Vector2f acceleration)
 void Player::ApplyAirResistance()
 {
 	velocity *= 0.98f;
+}
+
+void Player::Reset()
+{
+	score = 0;
+	playerSprite.setPosition(640, 540);
+	currentHealth = maxhealth;//set health to max
 }

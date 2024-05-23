@@ -71,7 +71,7 @@ int main()
 				bullets.push_back(b);
 			}
 		}
-			//MOVEMENT=================================
+		//MOVEMENT=================================
 
 		if (gameState == GameState::Playing)
 		{
@@ -147,7 +147,7 @@ int main()
 			}
 			//Bounding Box END==========================
 
-			if (elapsedTime > 3)//every three seconds add another enemy to the scene
+			if (elapsedTime > 1.5)//every three seconds add another enemy to the scene
 			{
 				std::cout << "enemy spawn called" << std::endl;
 				SpawnEnemy(enemyTex);
@@ -169,7 +169,13 @@ int main()
 				{
 					if (bullet->GetBulletSprite().getGlobalBounds().intersects(enemy->GetEnemySprite().getGlobalBounds()))
 					{
-						enemy = enemies.erase(enemy);
+						enemy->TakeDamage(1);
+
+						if (enemy->GetEnemyHealth() <= 0)
+						{
+							enemy = enemies.erase(enemy);
+						}
+						
 						bullet = bullets.erase(bullet);
 						bulletErased = true;
 						player.UpdateScore(1);
@@ -196,6 +202,8 @@ int main()
 			for (auto enemy = enemies.begin(); enemy != enemies.end();)
 			{
 				enemy->GetEnemySprite().move(enemy->GetSpeed() * -1, 0);
+				enemy->UpdateEnemyHealthBar();
+				enemy->GetEnemyHealthBar().move(enemy->GetSpeed() * -1, 0);
 
 				if (enemy->GetEnemySprite().getGlobalBounds().intersects(player.GetSprite().getGlobalBounds()))
 				{
@@ -223,10 +231,6 @@ int main()
 
 			//=================CLEARED PREVIOUS FRAME=======
 
-
-
-
-
 			//=================DRAW THINGS==================
 			window.draw(player.GetSprite());
 
@@ -242,6 +246,8 @@ int main()
 			for (auto& enemies : enemies)
 			{
 				window.draw(enemies.GetEnemySprite());
+				window.draw(enemies.GetEnemyHealthBar());
+				std::cout << "health bar pos :  " << enemies.GetEnemyHealthBar().getPosition().x << " , " << enemies.GetEnemyHealthBar().getPosition().y << std::endl;
 			}
 			//=================FINISH DRAW==================
 
@@ -279,10 +285,10 @@ int main()
 			}
 		}
 
-		}
-		return 0;
 	}
-	
+	return 0;
+}
+
 std::pair<int, int> GenerateRandomEnemySpawn()
 {
 	// Define the y range
@@ -303,6 +309,7 @@ void SpawnEnemy(sf::Texture& texture)
 	Enemy enemyShip(texture);
 	auto position = GenerateRandomEnemySpawn();
 	enemyShip.GetEnemySprite().setPosition(position.first, position.second);
+	enemyShip.GetEnemyHealthBar().setPosition(enemyShip.GetEnemySprite().getPosition().x -45, enemyShip.GetEnemySprite().getPosition().y - 25);
 	enemies.push_back(enemyShip);
 	std::cout << "enemies in vector" << enemies.size() << std::endl;
 

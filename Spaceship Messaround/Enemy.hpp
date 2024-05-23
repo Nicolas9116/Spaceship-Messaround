@@ -4,6 +4,9 @@
 
 class Enemy
 {
+
+	sf::RectangleShape enemyHealthBar;
+
 	sf::Sprite enemySprite;
 	int health = 3;
 	int enemySpeed = 10;
@@ -16,5 +19,8 @@ public:
 
 	sf::Sprite& GetEnemySprite();
 	int& GetSpeed();
+	sf::RectangleShape& GetEnemyHealthBar();
+	void TakeDamage(int damage);
+	void UpdateEnemyHealthBar();
 };
 

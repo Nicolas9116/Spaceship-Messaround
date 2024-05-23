@@ -10,8 +10,10 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GUI.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -22,8 +24,10 @@
     <ClInclude Include="Player.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.hpp" />
     <ClInclude Include="GUI.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

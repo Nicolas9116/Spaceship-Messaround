@@ -13,35 +13,16 @@
 #include "Bullet.hpp"
 #include "Enemy.hpp"
 
-std::pair<int, int> GenerateRandomEnemySpawn()
-{
-	// Define the x range (e.g., [100, 200])
-	int x_min = 900;
-	int x_max = 1280;
+std::pair<int, int> GenerateRandomEnemySpawn();
 
-	// Define the y range (e.g., [0, 1080])
-	int y_min = 0;
-	int y_max = 1080;
+void SpawnEnemy(sf::Texture& texture);
 
-	// Generate a random x position within the range [x_min, x_max]
-	int random_x = x_min + std::rand() % (x_max - x_min + 1);
-
-	// Generate a random y position within the range [y_min, y_max]
-	int random_y = y_min + std::rand() % (y_max - y_min + 1);
-
-	return std::make_pair(random_x, random_y);
-}
+std::vector<Bullet> bullets;
+std::vector<Enemy> enemies;
 
 int main()
 {
 	std::srand(static_cast<unsigned int>(std::time(0)));
-
-	sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
-
-	window.setFramerateLimit(60);
-
-	std::vector<Bullet> bullets;
-	std::vector<Enemy> enemies;
 
 	//========Load Textures=============
 	sf::Texture playerTex;
@@ -54,6 +35,8 @@ int main()
 	enemyTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/enemy_ship.png");
 	//========End Load Textures=========
 
+	sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
+	window.setFramerateLimit(60);
 
 	Player player(playerTex);
 
@@ -83,40 +66,53 @@ int main()
 		}
 			//MOVEMENT
 
-		int movementControl = 0;
+		int airResistanceDetection = 0;
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 			{
 				std::cout << "A key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(-1, 0));
-				movementControl++;
+				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
 				std::cout << "D key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(1, 0));
-				movementControl++;
+				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
 				std::cout << "W key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(0, -1));
-				movementControl++;
+				airResistanceDetection++;
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
 				std::cout << "S key pressed" << std::endl;
 				player.UpdateAcceleration(sf::Vector2f(0, 1));
-				movementControl++;
+				airResistanceDetection++;
 			}
-			if (movementControl == 0)
+
+			//'AIR RESISTANCE' to come to a stop when no directions are pressed
+			if (airResistanceDetection == 0)//checks if there was a directional keypress in this frame, IFNOT slow down
 			{
 				player.ApplyAirResistance();
 			}
-			//MOVEMENT OVER===continue polling other events
+			// If either axis has no inputs, decelerate that axis independantly->avoids the case of pressing W+A and then releasing A but maintaining the W axis of movement
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				player.ResetVerticalVelocity();
+			}
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				player.ResetHorizontalVelocity();
+			}
+
+			//MOVEMENT OVER=============================
 
 
-		
+			std::cout << "Player Velocity: (" << player.GetVelocity().x << ", " << player.GetVelocity().y << ")" << std::endl;
+
 		//=================DO THINGS====================
 		
 		float elapsedTime = clock.getElapsedTime().asSeconds();
@@ -124,18 +120,14 @@ int main()
 		player.UpdateVelocity(player.GetAcceleration());
 		player.GetSprite().move(player.GetVelocity());
 
-		if (elapsedTime > 3)
+		if (elapsedTime > 3)//every three seconds add another enemy to the scene
 		{
 			std::cout << "enemy spawn called" << std::endl;
-			Enemy enemyShip(enemyTex);
-			auto position = GenerateRandomEnemySpawn();
-			enemyShip.GetEnemySprite().setPosition(position.first, position.second);
-			enemies.push_back(enemyShip);
+			SpawnEnemy(enemyTex);
 			clock.restart();
-			std::cout << "There are : " << enemies.size() << " enemies" << std::endl;
 		}
 		
-		for (auto& bullet : bullets)
+		for (auto& bullet : bullets)//Move bullet
 		{
 			bullet.GetBulletSprite().move(bullet.GetSpeed(), 0);
 		}
@@ -168,4 +160,35 @@ int main()
 		window.display();
 	}
 	return 0;
+
+
+}
+
+std::pair<int, int> GenerateRandomEnemySpawn()
+{
+	// Define the x range (e.g., [100, 200])
+	int x_min = 900;
+	int x_max = 1280;
+
+	// Define the y range (e.g., [0, 1080])
+	int y_min = 0;
+	int y_max = 1080;
+
+	// Generate a random x position within the range [x_min, x_max]
+	int random_x = x_min + std::rand() % (x_max - x_min + 1);
+
+	// Generate a random y position within the range [y_min, y_max]
+	int random_y = y_min + std::rand() % (y_max - y_min + 1);
+
+	return std::make_pair(random_x, random_y);
+}
+
+void SpawnEnemy(sf::Texture& texture)
+{
+	Enemy enemyShip(texture);
+	auto position = GenerateRandomEnemySpawn();
+	enemyShip.GetEnemySprite().setPosition(position.first, position.second);
+	enemies.push_back(enemyShip);
+	std::cout << "enemies in vector" << enemies.size() << std::endl;
+
 }

@@ -1,9 +1,5 @@
 #include "Bullet.hpp"
 
-
-static bool textureLoaded = false;
-
-
 Bullet::Bullet(sf::Texture& texture)
 {
 	bulletSprite.setTexture(texture);
@@ -11,11 +7,6 @@ Bullet::Bullet(sf::Texture& texture)
 	bulletSprite.setScale(0.1f, 0.1f); // Ensure the texture is scaled down without distortion
 	bulletSprite.setRotation(180);
 }
-
-//sf::Texture& Bullet::GetBulletTexture()
-//{
-//	return bulletTex;
-//}
 
 int& Bullet::GetSpeed()
 {

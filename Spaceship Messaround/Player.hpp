@@ -12,7 +12,7 @@ private:
 	int currentHealth = 0;
 	int maxhealth = 5;
 
-	float maxVelocity = 10;
+	float maxVelocity = 5;
 
 	sf::Vector2f acceleration;
 	sf::Vector2f velocity;
@@ -30,6 +30,9 @@ public:
 	
 	void UpdateAcceleration(sf::Vector2f newAcceleration);
 	void ResetAcceleration();
+	void ResetVerticalVelocity();
+	void ResetHorizontalVelocity();
+
 	void UpdateVelocity(sf::Vector2f acceleration);
 
 	void ApplyAirResistance();

@@ -38,6 +38,16 @@ void Player::ResetAcceleration()
 	acceleration = sf::Vector2f(0, 0);
 }
 
+void Player::ResetVerticalVelocity()
+{
+	velocity.y = velocity.y * 0.5f;
+}
+
+void Player::ResetHorizontalVelocity()
+{
+	velocity.x = velocity.x * 0.5f;
+}
+
 void Player::UpdateVelocity(sf::Vector2f acceleration)
 {
 	velocity += acceleration;

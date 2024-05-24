@@ -10,6 +10,8 @@ Enemy::Enemy(sf::Texture& texture)
     enemyHealthBar.setOrigin(enemyHealthBar.getGlobalBounds().width / 2, enemyHealthBar.getGlobalBounds().height / 2);
     enemyHealthBar.setSize(sf::Vector2f(30, 5));
     enemyHealthBar.setFillColor(sf::Color::Red);
+    enemyHealthBar.setOutlineColor(sf::Color::White);
+    enemyHealthBar.setOutlineThickness(.75f);
 };
 
 

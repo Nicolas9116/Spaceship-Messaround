@@ -21,12 +21,11 @@ enum class GameState
 };
 
 std::pair<int, int> GenerateRandomEnemySpawn();
-
 void SpawnEnemy(sf::Texture& texture);
+void UpdateFrameRate(sf::Clock& clock, GUI& gui);
 
 std::vector<Bullet> bullets;
 std::vector<Enemy> enemies;
-
 
 int main()
 {
@@ -42,6 +41,14 @@ int main()
 	sf::Texture enemyTex;
 	enemyTex.loadFromFile("C:/Users/vampi/source/repos/Spaceship Messaround/Spaceship Messaround/Sprites/enemy_ship.png");
 	//========End Load Textures=========
+	int bulletCounter = 0;//counter that drives the cooldown
+	int bulletCoolDown = 10;//the cooldown period--higher number here is longer cooldown. At 60 FPS, 20 would result in 3 of x per second. IE CoolDown is expressed in frames.
+
+	int dodgeTimer = 180;
+	int dodgeCooldown = 180;
+
+	int explosionTimer = 15;
+	int explosionlength = 15;
 
 	sf::RenderWindow window(sf::VideoMode(1280, 1080), "SFML works!");
 	window.setFramerateLimit(60);
@@ -55,10 +62,22 @@ int main()
 	//========Main Game Loop============
 	while (window.isOpen())
 	{
-		float deltaTime = frameRateClock.restart().asSeconds();
-		float fps = 1.0f / deltaTime;
+		bulletCounter++;
+		
+		if (explosionTimer < explosionlength)
+		{
+			explosionTimer++;
+		}
 
-		gui.UpdateFrameRateText(fps);
+		if (dodgeTimer < dodgeCooldown)
+		{
+			dodgeTimer++;
+		}
+
+
+		std::cout << dodgeTimer << std::endl;
+
+		UpdateFrameRate(frameRateClock, gui);
 
 		//========POLL EVENTS===============
 		sf::Event event;
@@ -69,12 +88,13 @@ int main()
 				window.close();
 			}
 
-			if ((gameState == GameState::Playing && event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
+			if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && bulletCounter > bulletCoolDown))
 			{
 				std::cout << "Spacebar pressed" << std::endl;
 				Bullet b(bulletTex);
 				b.GetBulletSprite().setPosition(player.GetSprite().getPosition());
 				bullets.push_back(b);
+				bulletCounter = 0;
 			}
 		}
 		//MOVEMENT=================================
@@ -109,6 +129,17 @@ int main()
 				airResistanceDetection++;
 			}
 
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && player.GetBombCharge() == 100)
+			{
+				for (auto enemy = enemies.begin(); enemy != enemies.end();)
+				{
+					enemy = enemies.erase(enemy);
+				}
+				player.ResetBombCharge();
+				explosionTimer = 0;
+			}
+
+
 			//'AIR RESISTANCE' to come to a stop when no directions are pressed
 			if (airResistanceDetection == 0)//checks if there was a directional keypress in this frame, IFNOT slow down
 			{
@@ -122,6 +153,21 @@ int main()
 			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
 				player.ResetHorizontalVelocity();
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && dodgeTimer == dodgeCooldown)
+			{
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+				{
+					player.GetSprite().move(0, -200);
+					dodgeTimer = 0;
+				}
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+				{
+					player.GetSprite().move(0, +200);
+					dodgeTimer = 0;
+				}
 			}
 
 			//MOVEMENT OVER=============================
@@ -143,17 +189,17 @@ int main()
 			{
 				player.GetSprite().setPosition(0 + player.GetSprite().getGlobalBounds().width / 2, player.GetSprite().getPosition().y);
 			}
-			if (player.GetSprite().getPosition().y < 0 + player.GetSprite().getGlobalBounds().height / 2)//top check
+			if (player.GetSprite().getPosition().y < 80 + player.GetSprite().getGlobalBounds().height / 2)//top check
 			{
-				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 0 + player.GetSprite().getGlobalBounds().height / 2);
+				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 80 + player.GetSprite().getGlobalBounds().height / 2);
 			}
-			if (player.GetSprite().getPosition().y > 1080 - player.GetSprite().getGlobalBounds().height / 2)//bottom check
+			if (player.GetSprite().getPosition().y > 980 - player.GetSprite().getGlobalBounds().height / 2)//bottom check
 			{
-				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 1080 - player.GetSprite().getGlobalBounds().height / 2);
+				player.GetSprite().setPosition(player.GetSprite().getPosition().x, 980 - player.GetSprite().getGlobalBounds().height / 2);
 			}
 			//Bounding Box END==========================
 
-			if (elapsedTime > 1.5)//every three seconds add another enemy to the scene
+			if (elapsedTime > .75 && explosionTimer == explosionlength)//every three seconds add another enemy to the scene
 			{
 				std::cout << "enemy spawn called" << std::endl;
 				SpawnEnemy(enemyTex);
@@ -181,10 +227,16 @@ int main()
 						{
 							enemy = enemies.erase(enemy);
 						}
-						
+
 						bullet = bullets.erase(bullet);
 						bulletErased = true;
 						player.UpdateScore(1);
+
+							if (player.GetBombCharge() < 100)
+							{
+								player.UpdateBombCharge(10);
+							}
+
 						break; // Exit the inner loop
 					}
 					else
@@ -231,6 +283,8 @@ int main()
 			//=================UPDATE GUI=================
 			gui.UpdateScore(player.GetScore());
 			gui.UpdateHealthBar(player.GetHealth());
+			gui.UpdateDashBar(dodgeTimer);
+			gui.UpdateBombBar(player.GetBombCharge());
 			//=================CLEAR PREVIOUS FRAME=========
 
 			window.clear();//clear the previous frame before rendering a new frame
@@ -243,7 +297,16 @@ int main()
 			window.draw(gui.GetScoreText());
 			window.draw(gui.GetHealthBarBacking());
 			window.draw(gui.GetHealthBar());
+			window.draw(gui.GetDashBar());
+			window.draw(gui.GetDashBarBacking());
 			window.draw(gui.GetFrameRateText());
+			window.draw(gui.GetBombBar());
+			window.draw(gui.GetBombBarBacking());
+
+			if (explosionTimer < explosionlength)
+			{
+				window.draw(gui.GetExplosion());
+			}
 
 			for (auto& bullet : bullets)
 			{
@@ -299,8 +362,8 @@ int main()
 std::pair<int, int> GenerateRandomEnemySpawn()
 {
 	// Define the y range
-	int y_min = 0;
-	int y_max = 1080;
+	int y_min = 80;
+	int y_max = 980;
 
 	// Worked out later I didn't want the x to be random---switched this out as a quick fix. 
 	int random_x = 1300;
@@ -316,9 +379,16 @@ void SpawnEnemy(sf::Texture& texture)
 	Enemy enemyShip(texture);
 	auto position = GenerateRandomEnemySpawn();
 	enemyShip.GetEnemySprite().setPosition(position.first, position.second);
-	enemyShip.GetEnemyHealthBar().setPosition(enemyShip.GetEnemySprite().getPosition().x -45, enemyShip.GetEnemySprite().getPosition().y - 25);
+	enemyShip.GetEnemyHealthBar().setPosition(enemyShip.GetEnemySprite().getPosition().x - 45, enemyShip.GetEnemySprite().getPosition().y - 25);
 	enemies.push_back(enemyShip);
 	std::cout << "enemies in vector" << enemies.size() << std::endl;
 
+}
+
+void UpdateFrameRate(sf::Clock& clock, GUI& gui)
+{
+	float deltaTime = clock.restart().asSeconds();
+	float fps = 1.0f / deltaTime;
+	gui.UpdateFrameRateText(fps);
 }
 

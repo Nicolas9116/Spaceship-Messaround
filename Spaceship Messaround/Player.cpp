@@ -1,4 +1,6 @@
 #include "Player.hpp"
+#include "Enemy.hpp"
+
 #include <iostream>
 #include <algorithm>
 
@@ -31,6 +33,25 @@ void Player::TakeDamage(int damage)
 {
 	currentHealth -= damage;
 }
+
+int& Player::GetBombCharge()
+{
+	return bombCharge;
+}
+
+void Player::UpdateBombCharge(int charge)
+{
+	this->bombCharge += charge;
+}
+
+void Player::ResetBombCharge()
+{
+	this->bombCharge = 0;
+}
+
+//void Player::ThrowBomb(std::vector<Enemy>& enemies)
+//{	
+//}
 
 
 sf::Sprite& Player::GetSprite()

@@ -49,9 +49,14 @@ void Player::ResetBombCharge()
 	this->bombCharge = 0;
 }
 
-//void Player::ThrowBomb(std::vector<Enemy>& enemies)
-//{	
-//}
+void Player::ThrowBomb(std::vector<Enemy>& enemies)
+{
+	for (auto enemy = enemies.begin(); enemy != enemies.end();)
+	{
+		enemy = enemies.erase(enemy);
+	}
+	this->ResetBombCharge();
+}
 
 
 sf::Sprite& Player::GetSprite()

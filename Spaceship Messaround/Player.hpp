@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include "Enemy.hpp"
 
 class Player
 {
@@ -14,6 +15,7 @@ private:
 
 	float maxVelocity = 12.5;
 	float accelerationForce = 1;
+
 	sf::Vector2f acceleration;
 	sf::Vector2f velocity;
 
@@ -32,7 +34,7 @@ public:
 	int& GetBombCharge();
 	void UpdateBombCharge(int charge);
 	void ResetBombCharge();
-	//void ThrowBomb(std::vector<Enemy>& enemies);
+	void ThrowBomb(std::vector<Enemy>& enemies);
 
 	sf::Sprite& GetSprite();
 

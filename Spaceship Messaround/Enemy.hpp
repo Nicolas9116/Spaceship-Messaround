@@ -9,7 +9,7 @@ class Enemy
 
 	sf::Sprite enemySprite;
 	int health = 3;
-	int enemySpeed = 10;
+	int enemySpeed = 8;
 
 public:
 

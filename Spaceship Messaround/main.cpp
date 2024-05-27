@@ -21,14 +21,14 @@ enum class GameState
 };
 
 std::pair<int, int> GenerateRandomEnemySpawn();
-void SpawnEnemy(sf::Texture& texture);
+void SpawnEnemy(sf::Texture& texture, std::vector<Enemy>& enemies);
 void UpdateFrameRate(sf::Clock& clock, GUI& gui);
-
-std::vector<Bullet> bullets;
-std::vector<Enemy> enemies;
 
 int main()
 {
+	std::vector<Bullet> bullets;
+	std::vector<Enemy> enemies;
+
 	std::srand(static_cast<unsigned int>(std::time(0)));
 
 	//========Load Textures=============
@@ -46,6 +46,7 @@ int main()
 
 	int dodgeTimer = 180;
 	int dodgeCooldown = 180;
+	int dodgeDistance = 200;
 
 	int explosionTimer = 15;
 	int explosionlength = 15;
@@ -131,12 +132,11 @@ int main()
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && player.GetBombCharge() == 100)
 			{
-				for (auto enemy = enemies.begin(); enemy != enemies.end();)
+				if (!enemies.empty())
 				{
-					enemy = enemies.erase(enemy);
+					player.ThrowBomb(enemies);
+					explosionTimer = 0;
 				}
-				player.ResetBombCharge();
-				explosionTimer = 0;
 			}
 
 
@@ -159,13 +159,13 @@ int main()
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 				{
-					player.GetSprite().move(0, -200);
+					player.GetSprite().move(0, -dodgeDistance);
 					dodgeTimer = 0;
 				}
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 				{
-					player.GetSprite().move(0, +200);
+					player.GetSprite().move(0, +dodgeDistance);
 					dodgeTimer = 0;
 				}
 			}
@@ -202,7 +202,7 @@ int main()
 			if (elapsedTime > .75 && explosionTimer == explosionlength)//every three seconds add another enemy to the scene
 			{
 				std::cout << "enemy spawn called" << std::endl;
-				SpawnEnemy(enemyTex);
+				SpawnEnemy(enemyTex, enemies);
 				clock.restart();
 			}
 
@@ -374,7 +374,7 @@ std::pair<int, int> GenerateRandomEnemySpawn()
 	return std::make_pair(random_x, random_y);
 }
 
-void SpawnEnemy(sf::Texture& texture)
+void SpawnEnemy(sf::Texture& texture, std::vector<Enemy>& enemies)
 {
 	Enemy enemyShip(texture);
 	auto position = GenerateRandomEnemySpawn();
